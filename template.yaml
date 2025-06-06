@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM template with two Lambda functions and one S3 bucket
+
+Resources:
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-sam-bucket
+
+  GetOnlyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetOnlyFunction
+      CodeUri: s3://my-sam-bucket/get-lambda.zip
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Policies:
+        - S3ReadPolicy:
+            BucketName: my-sam-bucket
+
+  GetPutFunction:
+    Type: AWS::Serverless::Function
+    # Using raw IAM policy instead of S3CrudPolicy to enforce least privilege (only GetObject and PutObject access)
+    Properties:
+      FunctionName: GetPutFunction
+      CodeUri: s3://my-sam-bucket/put-get-lambda.zip
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: !Sub arn:aws:s3:::my-sam-bucket/*
+  

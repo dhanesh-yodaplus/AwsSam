@@ -1,0 +1,8 @@
+Resources:
+  DemoLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-s3-localstack/lambda-code.zip
+      Handler: app.lambda_handler
+      Runtime: python3.10
+

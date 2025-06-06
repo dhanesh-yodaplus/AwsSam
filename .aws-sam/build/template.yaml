@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM template with two Lambda functions and one S3 bucket
+Resources:
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-sam-bucket
+  GetOnlyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetOnlyFunction
+      CodeUri: GetOnlyFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Policies:
+      - S3ReadPolicy:
+          BucketName: my-sam-bucket
+    Metadata:
+      SamResourceId: GetOnlyFunction
+  GetPutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetPutFunction
+      CodeUri: GetPutFunction
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Policies:
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          Resource:
+            Fn::Sub: arn:aws:s3:::my-sam-bucket/*
+    Metadata:
+      SamResourceId: GetPutFunction
